@@ -1,37 +1,41 @@
-int ledPin = 13; // onboard LED
-int inputPin1 = A0;
-const int RELAY_PIN = 3;
-int counter = 0;
+// Using a PIR sensor
+
+
+#include <Wire.h>
+const int RELAY_PIN = 3; // Change this to match your relay pin
+
+int ledPin = 13;             // choose the pin for the LED
+int inputPin = 2;            // choose the input pin (for PIR sensor)
+int pirState = LOW;          // we start, assuming no motion detected
+int val = 0;                 // variable for reading the pin status
 
 void setup() {
-  pinMode(ledPin, OUTPUT);
-  pinMode(inputPin1, INPUT);
-  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(ledPin, OUTPUT);   // declare LED as output
+  pinMode(inputPin, INPUT);  // declare sensor as input
+  pinMode(RELAY_PIN, OUTPUT); // declare relay pin as output
+
   Serial.begin(9600);
 }
 
-
 void loop() {
-
-  int sensorVal1 = digitalRead(inputPin1);
-
-  if (sensorVal1 == HIGH) {
-      counter++;
-  }
-  else if (counter > 1) {
-    counter--;
-  }
-
-  if (counter > 10) {
-    counter = 0;
-    Serial.println("On");
+  val = digitalRead(inputPin); // read input value
+  if (val == HIGH) {           // check if the input is HIGH
+    digitalWrite(ledPin, HIGH); // turn LED ON
     digitalWrite(RELAY_PIN, HIGH);
-    delay(60000); //60 seconds pump on
-    Serial.println("Off");
+    if (pirState == LOW) {
+      // we have just turned on
+      Serial.println("Motion detected!");
+      // We only want to print on the output change, not state
+      pirState = HIGH;
+    }
+  } else {
+    digitalWrite(ledPin, LOW); // turn LED OFF
     digitalWrite(RELAY_PIN, LOW);
-    delay(10000); // 10 seconds pump off
+    if (pirState == HIGH){
+      // we have just turned off
+      Serial.println("Motion ended!");
+      // We only want to print on the output change, not state
+      pirState = LOW;
+    }
   }
-
-  delay(100); // Add a small delay to avoid excessive printing
-
 }
