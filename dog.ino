@@ -1,18 +1,15 @@
-// Using a PIR sensor
-
-
 #include <Wire.h>
-const int RELAY_PIN = 3; // Change this to match your relay pin
+const int RELAY_PIN = 3;
 
-int ledPin = 13;             // choose the pin for the LED
-int inputPin = 2;            // choose the input pin (for PIR sensor)
-int pirState = LOW;          // we start, assuming no motion detected
-int val = 0;                 // variable for reading the pin status
+int ledPin = 13;
+int inputPin = 2;
+int pirState = LOW;
+int val = 0;   //pin status
 
 void setup() {
-  pinMode(ledPin, OUTPUT);   // declare LED as output
-  pinMode(inputPin, INPUT);  // declare sensor as input
-  pinMode(RELAY_PIN, OUTPUT); // declare relay pin as output
+  pinMode(ledPin, OUTPUT);
+  pinMode(inputPin, INPUT);  // declare PIR sensor
+  pinMode(RELAY_PIN, OUTPUT); // declare relay for pump
 
   Serial.begin(9600);
 }
@@ -20,21 +17,17 @@ void setup() {
 void loop() {
   val = digitalRead(inputPin); // read input value
   if (val == HIGH) {           // check if the input is HIGH
-    digitalWrite(ledPin, HIGH); // turn LED ON
+    digitalWrite(ledPin, HIGH);
     digitalWrite(RELAY_PIN, HIGH);
     if (pirState == LOW) {
-      // we have just turned on
       Serial.println("Motion detected!");
-      // We only want to print on the output change, not state
       pirState = HIGH;
     }
   } else {
     digitalWrite(ledPin, LOW); // turn LED OFF
     digitalWrite(RELAY_PIN, LOW);
     if (pirState == HIGH){
-      // we have just turned off
       Serial.println("Motion ended!");
-      // We only want to print on the output change, not state
       pirState = LOW;
     }
   }
